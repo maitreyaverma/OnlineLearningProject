@@ -2,11 +2,11 @@ import numpy as np
 from scipy.stats import bernoulli
 from math import log,sqrt
 Totalunits = [1000,10000,20000,30000,40000,50000,60000,70000,80000,90000,100000]
-
+Totalunits = [1000]
 total_reward = np.zeros(len(Totalunits))
 k =0;
 for L in Totalunits:
-	for x in range(0,100):	
+	for x in range(0,1):	
 		N=5
 		# L=1000
 		mu=0.1
@@ -74,7 +74,32 @@ for L in Totalunits:
 			#step7
 			H=2*modifiedBids[:,0]
 			#step8 p1
-			temp=R*qualityUpperBound-H
+			temp=np.ones(N)
+			for i in range(N):
+				armMean=R*qualityUpperBound[i]-H[i]
+				required_value=(log(t)+3*log(log(t)))/(armMean+0.01)
+				left_lim=armMean
+				right_lim=1.0
+				pa=armMean
+				mid=0.0
+				while right_lim - left_lim >0.001:
+					# print(left_lim)
+					mid=(left_lim+right_lim)/2
+					if pa==0:
+						if mid==1:
+							kl_div=50000
+							break
+						else:
+							kl_div=(1- pa)*log(( 1 -pa)/( 1 - mid))
+					elif pa==1:
+						kl_div=pa*log(pa/mid)
+					else:
+						kl_div=pa*log(pa/mid) + (1-pa)*log((1-pa)/(1-mid))
+					if kl_div < required_value:
+						left_lim=mid
+					else:
+						right_lim=mid
+				temp[i]=mid
 			temp2=1*a.getCapacitiesFulfilled(numberOfTimesPlayed)
 			temp=temp*temp2
 			i=np.argmax(temp)
@@ -97,7 +122,7 @@ for L in Totalunits:
 		P=P*temp
 		T=bids[:,0]*numberOfTimesPlayed+P
 		# print(T)
-	print(total_reward[k]/(L*100))
+	print(total_reward[k]/(L))
 	k = k+1
 
 		# print(modifiedBids)

@@ -1,8 +1,8 @@
 import numpy as np 
 from scipy.stats import bernoulli
 from math import log,sqrt
-Totalunits = [1000,10000,20000,30000,40000,50000,60000,70000,80000,90000,100000]
 
+Totalunits = [10000,25000]
 total_reward = np.zeros(len(Totalunits))
 k =0;
 for L in Totalunits:
@@ -54,13 +54,15 @@ for L in Totalunits:
 				return numberOfTimesPlayed<self.Capacities
 			def compareBeta(self,beta):
 				return self.Costs<beta
+			def getQualities(self):
+				return self.Qualities
 		a=Agents()
 		bids=a.getBids()
 		modifiedBids=[]
 		for bid in bids:
 			b=resampling(bid[0])
 			modifiedBids.insert(len(modifiedBids),b)
-
+		Qualities=a.getQualities()
 		rewards=a.rewards()
 		empericalQuality=rewards
 		numberOfTimesPlayed=np.ones(N)
@@ -74,11 +76,11 @@ for L in Totalunits:
 			#step7
 			H=2*modifiedBids[:,0]
 			#step8 p1
-			temp=R*qualityUpperBound-H
+			temp=R*Qualities-H
 			temp2=1*a.getCapacitiesFulfilled(numberOfTimesPlayed)
 			temp=temp*temp2
 			i=np.argmax(temp)
-			gi=R*qualityUpperBound[i]-H[i]
+			gi=R*Qualities[i]-H[i]
 			#step9
 			if gi>0:
 				#step 10,11
@@ -86,7 +88,7 @@ for L in Totalunits:
 				total_reward[k]+= R*reward-H[i]
 				empericalQuality[i]=(empericalQuality[i]*numberOfTimesPlayed[i]+reward)/(numberOfTimesPlayed[i]+1)
 				numberOfTimesPlayed[i]+=1
-				qualityUpperBound[i]=empericalQuality[i]+sqrt(log(t)/(2*numberOfTimesPlayed[i]))
+				qualityUpperBound[i]=empericalQuality[i]+sqrt(2*log(t)/numberOfTimesPlayed[i])
 			#step 12,13
 			else:
 				break

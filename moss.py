@@ -64,7 +64,7 @@ for L in Totalunits:
 		rewards=a.rewards()
 		empericalQuality=rewards
 		numberOfTimesPlayed=np.ones(N)
-		qualityUpperBound=empericalQuality+np.sqrt(log(N)/(2*numberOfTimesPlayed))
+		qualityUpperBound=empericalQuality+np.sqrt(4*np.log( np.amax(np.vstack((np.ones(N),L/(N*numberOfTimesPlayed))),axis=0) )/numberOfTimesPlayed)
 
 		t=N
 		modifiedBids=np.array(modifiedBids)
@@ -86,7 +86,7 @@ for L in Totalunits:
 				total_reward[k]+= R*reward-H[i]
 				empericalQuality[i]=(empericalQuality[i]*numberOfTimesPlayed[i]+reward)/(numberOfTimesPlayed[i]+1)
 				numberOfTimesPlayed[i]+=1
-				qualityUpperBound[i]=empericalQuality[i]+sqrt(log(t)/(2*numberOfTimesPlayed[i]))
+				qualityUpperBound[i]=empericalQuality[i]+sqrt(4*log(max(1,L/(N*numberOfTimesPlayed[i])))/numberOfTimesPlayed[i])
 			#step 12,13
 			else:
 				break

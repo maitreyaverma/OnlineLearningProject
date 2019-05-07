@@ -61,11 +61,17 @@ for L in Totalunits:
 			b=resampling(bid[0])
 			modifiedBids.insert(len(modifiedBids),b)
 
+		S=np.full(N,0.0)
+		F=np.full(N,0.0)
 		rewards=a.rewards()
-		empericalQuality=rewards
+		for i in range(N):
+			if rewards[i]>0:
+				S[i]+=1
+			else:
+				F[i]+=1
+		# empericalQuality=rewards
 		numberOfTimesPlayed=np.ones(N)
-		qualityUpperBound=empericalQuality+np.sqrt(log(N)/(2*numberOfTimesPlayed))
-
+		# qualityUpperBound=empericalQuality+np.sqrt(log(N)/(2*numberOfTimesPlayed))
 		t=N
 		modifiedBids=np.array(modifiedBids)
 		
@@ -74,19 +80,21 @@ for L in Totalunits:
 			#step7
 			H=2*modifiedBids[:,0]
 			#step8 p1
-			temp=R*qualityUpperBound-H
+			temp=np.random.beta(S+1,F+1,N)
 			temp2=1*a.getCapacitiesFulfilled(numberOfTimesPlayed)
 			temp=temp*temp2
 			i=np.argmax(temp)
-			gi=R*qualityUpperBound[i]-H[i]
+			gi=1
 			#step9
 			if gi>0:
 				#step 10,11
 				reward=a.reward(i)
 				total_reward[k]+= R*reward-H[i]
-				empericalQuality[i]=(empericalQuality[i]*numberOfTimesPlayed[i]+reward)/(numberOfTimesPlayed[i]+1)
 				numberOfTimesPlayed[i]+=1
-				qualityUpperBound[i]=empericalQuality[i]+sqrt(log(t)/(2*numberOfTimesPlayed[i]))
+				if reward>0:
+					S[i]+=1
+				else:
+					F[i]+=1
 			#step 12,13
 			else:
 				break
